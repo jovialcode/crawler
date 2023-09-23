@@ -1,0 +1,4 @@
+rootProject.name = 'crawler'
+
+include 'fetcher'
+include 'parser'
