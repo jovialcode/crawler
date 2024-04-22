@@ -1,10 +1,9 @@
-package com.jovialcode.fetcher.infra.clients;
+package com.jovialcode.fetcher.infra.httpclients;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -23,18 +22,24 @@ public class HttpAgent {
     private final HttpClient httpClient;
 
     public HttpAgent() {
-        this.httpClient = HttpClient.newBuilder().build();
+        this.httpClient = HttpClient.newHttpClient();
     }
 
-    public HttpResponse<String> download(String url) throws URISyntaxException, IOException, InterruptedException {
+    public String download(String url) throws URISyntaxException {
         return download(new URI(url));
     }
 
-    public HttpResponse<String> download(URI url) throws IOException, InterruptedException {
+    public String download(URI url) {
         HttpRequest httpRequest = HttpRequest.newBuilder(url)
                 .GET()
                 .build();
 
-        return httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        return download(httpRequest);
+    }
+
+    public String download(HttpRequest httpRequest) {
+        return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body)
+                .join();
     }
 }

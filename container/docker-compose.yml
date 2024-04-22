@@ -1,6 +1,17 @@
 version: '3.9'
 
 services:
+  mysql:
+    image: mysql:8.0.34
+    container_name: mysql-8.0.34
+    environment:
+      MYSQL_ROOT_PASSWORD: admin!23
+      MYSQL_DATABASE: crawl
+    volumes:
+      - C:\home\data\mysql-crawl:/data/db
+      # - ./crawl-scheme-all.sql:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
   mongodb:
     image: mongo:5.0
     ports:
@@ -24,7 +35,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:7.3.2
-    container_name: broker
+    container_name: kafka
     depends_on:
       - zookeeper
     ports:
@@ -48,7 +59,7 @@ services:
     restart: always
     environment:
       KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: 'broker:29092'
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: 'kafka:29092'
       KAFKA_CLUSTERS_0_ZOOKEEPER: 'zookeeper:2181'
 
 #  redis:

@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.7.16'
+        springBootVersion = '3.2.1'
         springDependencyManagementVersion = '1.0.15.RELEASE'
     }
 
@@ -24,7 +24,7 @@ subprojects {
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
 
-    sourceCompatibility = 16
+    sourceCompatibility = 21
 
     repositories {
         mavenCentral()
@@ -42,7 +42,11 @@ subprojects {
         annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
         annotationProcessor 'org.projectlombok:lombok'
 
+        //For Mapping Json
         implementation 'com.google.code.gson:gson:2.10'
         implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.1'
+
+        //For Functional Coding
+        implementation 'io.vavr:vavr:0.10.4'
     }
 }
