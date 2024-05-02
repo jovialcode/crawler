@@ -9,7 +9,7 @@ services:
       MYSQL_DATABASE: crawl
     volumes:
       - C:\home\data\mysql-crawl:/data/db
-      # - ./crawl-scheme-all.sql:/docker-entrypoint-initdb.d
+      - C:\home\project\crawler\container:/docker-entrypoint-initdb.d
     ports:
       - "3306:3306"
   mongodb:

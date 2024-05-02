@@ -1,3 +1,16 @@
+CREATE DATABASE crawler;
+
+DROP TABLE IF EXISTS crawler;
+CREATE TABLE IF NOT EXISTS crawler (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    host varchar(255) ,
+    description varchar(255),
+    createDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modifyDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleteYn TINYINT DEFAULT 0,
+    FOREIGN KEY (host) REFERENCES seed(host)
+);
+
 DROP TABLE IF EXISTS seed;
 CREATE TABLE IF NOT EXISTS seed (
     host varchar(255) PRIMARY KEY,
