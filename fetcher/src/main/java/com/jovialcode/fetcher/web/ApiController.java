@@ -1,7 +1,15 @@
 package com.jovialcode.fetcher.web;
 
-import org.springframework.stereotype.Controller;
+import com.jovialcode.fetcher.web.dto.MessageResponse;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController("/crawler")
 public class ApiController {
+
+    @PostMapping("/create")
+    public MessageResponse createCrawler(){
+        return MessageResponse.of("value");
+    }
+
 }

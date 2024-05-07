@@ -23,7 +23,7 @@ public class CrawlerRouter {
         return RouterFunctions
             .route(GET("/crawler").and(accept(MediaType.APPLICATION_JSON)), crawlerDescriptionHandler::crawler)
             .andRoute(GET("/crawlers").and(accept(MediaType.APPLICATION_JSON)), crawlerDescriptionHandler::crawlers)
-            .andRoute(POST("/createCrawlers").and(accept(MediaType.APPLICATION_JSON)), crawlerDescriptionHandler::createCrawler)
+            .andRoute(POST("/createCrawler").and(accept(MediaType.APPLICATION_JSON)), crawlerDescriptionHandler::createCrawler)
             .andRoute(PUT("/modifyCrawler").and(accept(MediaType.APPLICATION_JSON)), crawlerDescriptionHandler::modifyCrawler)
             .andRoute(DELETE("/deleteCrawler").and(accept(MediaType.APPLICATION_JSON)), crawlerDescriptionHandler::deleteCrawler);
     }

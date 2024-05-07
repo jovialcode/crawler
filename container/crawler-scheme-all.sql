@@ -3,20 +3,25 @@ CREATE DATABASE crawler;
 DROP TABLE IF EXISTS crawler;
 CREATE TABLE IF NOT EXISTS crawler (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    host varchar(255) ,
+    crawler_name varchar(100) NOT NULL,
     description varchar(255),
-    createDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    modifyDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleteYn TINYINT DEFAULT 0,
-    FOREIGN KEY (host) REFERENCES seed(host)
+    create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modify_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    delete_yn TINYINT DEFAULT 0,
+    UNIQUE KEY(crawler_name)
 );
+
+--
 
 DROP TABLE IF EXISTS seed;
 CREATE TABLE IF NOT EXISTS seed (
     host varchar(255) PRIMARY KEY,
-    crawlDelay int DEFAULT 30,
-    createDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleteYn TINYINT DEFAULT 0
+    description varchar(255),
+    crawler_id INT,
+    crawl_delay int DEFAULT 30,
+    create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    delete_yn TINYINT DEFAULT 0
+    FOREIGN KEY (crawler_id) REFERENCES crawler(crawler_id)
 );
 
 --
