@@ -1,11 +1,17 @@
 package com.jovialcode.common.crawler;
 
-import lombok.Data;
+import lombok.*;
 
 import java.net.URI;
 
-@Data(staticConstructor = "of")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CrawlItem {
-    private final URI uri;
+    private URI uri;
     private int retry = 0;
+
+    public CrawlItem(URI uri) {
+        this.uri = uri;
+    }
 }

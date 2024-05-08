@@ -13,6 +13,5 @@ class CrawlerFactoryTest {
     void createCrawler() throws InterruptedException {
         CrawlerContext healty = crawlerFactory.createCrawler("healty", 1);
         healty.start();
-        Thread.sleep(1000 * 60);
     }
 }

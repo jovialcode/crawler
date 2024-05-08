@@ -8,3 +8,10 @@ spring:
     consumer:
       bootstrap-servers: localhost:9092
       group-id: fetcher
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: crawler
+      username: crawler
+      password: crawler123

@@ -1,9 +1,8 @@
-package com.jovialcode.common.crawler;
+package com.jovialcode.fetcher.crawler;
 
 import lombok.Data;
 
 import java.net.URI;
-
 
 @Data(staticConstructor = "of")
 public class CrawlResult {
