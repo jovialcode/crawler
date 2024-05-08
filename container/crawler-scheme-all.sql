@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS crawler;
 CREATE TABLE IF NOT EXISTS crawler (
     id INT AUTO_INCREMENT PRIMARY KEY,
     crawler_name varchar(100) NOT NULL,
+    crawler_state varchar(5) NOT NULL,
     description varchar(255),
     create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modify_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

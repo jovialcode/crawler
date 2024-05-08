@@ -1,13 +1,16 @@
 package com.jovialcode.fetcher.infra.kafka;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.serialization.StringDeserializer;
+
+import com.jovialcode.common.crawler.CrawlItem;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.EnableKafka;
-import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
+
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,28 +30,19 @@ public class KafkaConsumerConfig {
         configurations.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, serverUrl);
         configurations.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         configurations.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        configurations.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        configurations.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         configurations.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         return configurations;
     }
 
     @Bean
-    public ConsumerFactory<String, String> consumerFactory() {
+    public ConsumerFactory<String, CrawlItem> consumerFactory() {
+        JsonDeserializer<CrawlItem> deserializer = new JsonDeserializer<>(CrawlItem.class, false);
+
         return new DefaultKafkaConsumerFactory<>(
-                consumerConfigs(),
-                new StringDeserializer(),
-                new StringDeserializer()
+            consumerConfigs(),
+            new StringDeserializer(),
+            deserializer
         );
-    }
-
-    @Bean
-    ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
-
-        factory.setConsumerFactory(consumerFactory());
-        factory.setConcurrency(1);
-        factory.getContainerProperties().setPollTimeout(5000);
-
-        return factory;
     }
 }

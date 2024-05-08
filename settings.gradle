@@ -1,5 +1,6 @@
 rootProject.name = 'crawler'
 
+include 'common'
 include 'fetcher'
 include 'parser'
 include 'manager'

@@ -1,15 +1,18 @@
 package com.jovialcode.fetcher.crawler;
 
+import com.jovialcode.common.crawler.CrawlItem;
+import com.jovialcode.common.crawler.CrawlResult;
+import com.jovialcode.fetcher.infra.httpclients.HttpAgent;
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
 
 /***
 * 만약 여기서
@@ -18,19 +21,18 @@ import java.util.concurrent.CompletableFuture;
 * **/
 
 public class WebCrawler extends AbstractCrawler{
-    private final HttpClient httpClient;
+    private final HttpAgent httpAgent;
     private final Consumer<String, CrawlItem> consumer;
 
-    public WebCrawler(Consumer<String, CrawlItem> consumer) {
-        this.httpClient = HttpClient
-            .newBuilder()
-            .build(); // 이건 Bean으로 분리.
+    public WebCrawler(final HttpAgent httpAgent, final Consumer<String, CrawlItem> consumer) {
+        this.httpAgent = httpAgent;
         this.consumer = consumer;
     }
 
     @Override
     public CrawlResult crawl(CrawlItem crawlItem) {
-
+        String download = this.httpAgent.download(crawlItem.getUri());
+        return CrawlResult.of(crawlItem.getUri(), download);
     }
 
     @Override
@@ -41,7 +43,9 @@ public class WebCrawler extends AbstractCrawler{
                 for (ConsumerRecord<String, CrawlItem> record : records) {
 
                     CrawlResult result = crawl(record.value());
+                    System.out.println(result.getResponse());
                 }
+                Thread.sleep(3000);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

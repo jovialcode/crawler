@@ -1,4 +1,4 @@
-package com.jovialcode.fetcher.crawler;
+package com.jovialcode.common.crawler;
 
 public enum CrawlerState {
     INIT,
