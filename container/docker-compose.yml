@@ -5,14 +5,20 @@ services:
     image: mysql:8.0.34
     container_name: mysql-8.0.34
     environment:
+      MYSQL_ROOT_USER: admin
       MYSQL_ROOT_PASSWORD: admin!23
       MYSQL_DATABASE: crawl
+      TZ: Asia/Seoul
     volumes:
       - C:\home\data\mysql-crawl:/data/db
       - C:\home\project\crawler\container:/docker-entrypoint-initdb.d
     ports:
       - "3306:3306"
+    networks:
+      - crawler-network
+
   mongodb:
+    container_name: mongodb
     image: mongo:5.0
     ports:
       - '27017:27017'
@@ -23,6 +29,9 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=admin!23
       - MONGO_INITDB_DATABASE=crawler
+      - TZ=Asia/Seoul
+    networks:
+      - crawler-network
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.2
@@ -34,6 +43,9 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
+      TZ: Asia/Seoul
+    networks:
+      - crawler-network
 
   kafka:
     image: confluentinc/cp-kafka:7.3.2
@@ -52,6 +64,9 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       ALLOW_PLAINTEXT_LISTENER: 'yes'
+      TZ: Asia/Seoul
+    networks:
+      - crawler-network
 
   kafka-ui:
     image: provectuslabs/kafka-ui
@@ -63,6 +78,42 @@ services:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: 'kafka:29092'
       KAFKA_CLUSTERS_0_ZOOKEEPER: 'zookeeper:2181'
+    networks:
+      - crawler-network
+
+  jobmanager:
+    container_name: jobmanager
+    image: flink:1.18.0
+    expose:
+      - "8081"
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    environment:
+      FLINK_PROPERTIES: |-
+        jobmanager.rpc.address: jobmanager
+        web.upload.dir: /opt/flink/flink-web
+        env.TZ: Asia/Seoul
+    volumes:
+      - C:\home\data\flink\web:/opt/flink/flink-web
+      - C:\home\data\flink\usrlib:/opt/flink/usrlib
+    networks:
+      - crawler-network
+
+  taskmanager:
+    container_name: taskmanager
+    image: flink:1.18.0
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    environment:
+      FLINK_PROPERTIES: |-
+        jobmanager.rpc.address: jobmanager
+        env.TZ: Asia/Seoul
+    volumes:
+      - C:\home\data\flink\usrlib:/opt/flink/usrlib
+    networks:
+      - crawler-network
 
 #  redis:
 #    image: docker.io/bitnami/redis:6.2
@@ -74,3 +125,7 @@ services:
 #    volumes:
 #      - C:\home\data\redis:/bitnami/redis/data
 
+
+networks:
+  crawler-network:
+    driver: bridge

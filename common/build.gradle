@@ -1,6 +1,5 @@
-bootJar {
-    enabled = false
-}
+sourceCompatibility = 11
+targetCompatibility = 11
 
 dependencies {
     annotationProcessor 'org.projectlombok:lombok'

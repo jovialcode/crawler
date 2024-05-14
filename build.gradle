@@ -2,6 +2,7 @@ buildscript {
     ext {
         springBootVersion = '3.2.1'
         springDependencyManagementVersion = '1.0.15.RELEASE'
+        lombokVersion = '8.6'
     }
 
     repositories {
@@ -11,6 +12,7 @@ buildscript {
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath "io.spring.gradle:dependency-management-plugin:${springDependencyManagementVersion}"
+        classpath("io.freefair.gradle:lombok-plugin:${lombokVersion}")
     }
 }
 
@@ -21,12 +23,12 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
-    apply plugin: 'org.springframework.boot'
-    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'io.freefair.lombok'
 
-    sourceCompatibility = 21
+    sourceCompatibility = 18
 
     repositories {
+        google()
         mavenCentral()
     }
 
@@ -37,10 +39,8 @@ subprojects {
     }
 
     dependencies{
-        compileOnly 'org.projectlombok:lombok'
-        developmentOnly 'org.springframework.boot:spring-boot-devtools'
-        annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
         annotationProcessor 'org.projectlombok:lombok'
+        compileOnly 'org.projectlombok:lombok'
 
         //For Mapping Json
         implementation 'com.google.code.gson:gson:2.10'
