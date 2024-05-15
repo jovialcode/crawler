@@ -19,34 +19,26 @@ import org.apache.flink.util.Collector;
 import org.bson.BsonDocument;
 
 import java.util.List;
+import java.util.Optional;
+
+import static org.apache.flink.connector.mongodb.common.utils.MongoConstants.DEFAULT_JSON_WRITER_SETTINGS;
 
 public class ParsingStreaming {
     public static void main(String[] args) throws Exception {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setRuntimeMode(RuntimeExecutionMode.STREAMING);
 
         MongoSource<String> source = MongoSource.<String>builder()
             .setUri("mongodb://crawler:crawler123@mongodb:27017")
             .setDatabase("crawler")
             .setCollection("crawl_data")
-            .setProjectedFields("_id", "crawlerId", "page")
+            .setProjectedFields("_id", "_class", "crawlerId", "page")
             .setFetchSize(10)
             .setLimit(50)
             .setNoCursorTimeout(true)
-            .setPartitionStrategy(PartitionStrategy.SAMPLE)
+            .setPartitionStrategy(PartitionStrategy.SPLIT_VECTOR)
             .setPartitionSize(MemorySize.ofMebiBytes(64))
-            .setSamplesPerPartition(2)
-            .setDeserializationSchema(new MongoDeserializationSchema<>() {
-                @Override
-                public String deserialize(BsonDocument document) {
-                    return document.toJson();
-                }
-
-                @Override
-                public TypeInformation<String> getProducedType() {
-                    return BasicTypeInfo.STRING_TYPE_INFO;
-                }
-            })
+            .setSamplesPerPartition(1)
+            .setDeserializationSchema(new MongoJsonDeserializationSchema())
             .build();
 
         ParsingRule parsingRule = new ParsingRule("//*[@id=\"content\"]/div[5]/ul/li[1]/div[1]/div[2]/strong/span[1]/a", "name");
@@ -54,7 +46,7 @@ public class ParsingStreaming {
         String table = "temp";
 
         // MongoDBSource로부터 데이터를 읽어오는 DataStream 생성
-        env.fromSource(source, WatermarkStrategy.noWatermarks(), "crawl_data")
+        env.fromSource(source, WatermarkStrategy.forMonotonousTimestamps(), "crawl_data")
             .setParallelism(1)
             .map(new MapFunction<String, Tuple1<List<ParsingResult>>>() {
                 @Override
@@ -100,5 +92,21 @@ public class ParsingStreaming {
 
         // Job 실행
         env.execute("final mongoDB -> Mysql");
+    }
+
+    private static class MongoJsonDeserializationSchema
+        implements MongoDeserializationSchema<String> {
+
+        @Override
+        public String deserialize(BsonDocument document) {
+            return Optional.ofNullable(document)
+                .map(doc -> doc.toJson(DEFAULT_JSON_WRITER_SETTINGS))
+                .orElse(null);
+        }
+
+        @Override
+        public TypeInformation<String> getProducedType() {
+            return BasicTypeInfo.STRING_TYPE_INFO;
+        }
     }
 }

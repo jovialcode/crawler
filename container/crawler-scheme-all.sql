@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS seed (
     crawler_id INT,
     crawl_delay int DEFAULT 30,
     create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    delete_yn TINYINT DEFAULT 0
-    FOREIGN KEY (crawler_id) REFERENCES crawler(crawler_id)
+    delete_yn TINYINT DEFAULT 0,
+    FOREIGN KEY (crawler_id) REFERENCES crawler(id)
 );
 
 --

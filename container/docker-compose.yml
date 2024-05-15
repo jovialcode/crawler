@@ -10,12 +10,10 @@ services:
       MYSQL_DATABASE: crawl
       TZ: Asia/Seoul
     volumes:
-      - C:\home\data\mysql-crawl:/data/db
-      - C:\home\project\crawler\container:/docker-entrypoint-initdb.d
+      - C:/home/data/mysql-crawl:/var/lib/mysql
+      - C:/home/project/crawler/container:/docker-entrypoint-initdb.d
     ports:
       - "3306:3306"
-    networks:
-      - crawler-network
 
   mongodb:
     container_name: mongodb
@@ -23,15 +21,13 @@ services:
     ports:
       - '27017:27017'
     volumes:
-      - C:\home\data\mongodb:/data/db
+      - C:/home/data/mongodb:/data/db
       - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=admin!23
       - MONGO_INITDB_DATABASE=crawler
       - TZ=Asia/Seoul
-    networks:
-      - crawler-network
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.2
@@ -44,10 +40,12 @@ services:
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
       TZ: Asia/Seoul
+    volumes:
+      - C:/home/data/zookeeper:/data
     networks:
       - crawler-network
 
-  kafka:
+  broker:
     image: confluentinc/cp-kafka:7.3.2
     container_name: kafka
     depends_on:
@@ -58,15 +56,18 @@ services:
       BITNAMI_DEBUG: 'yes'
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,PLAINTEXT_INTERNAL://broker:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       ALLOW_PLAINTEXT_LISTENER: 'yes'
       TZ: Asia/Seoul
+    volumes:
+      - C:/home/data/kafka:/var/lib/kafka
     networks:
       - crawler-network
+
 
   kafka-ui:
     image: provectuslabs/kafka-ui
@@ -76,8 +77,10 @@ services:
     restart: always
     environment:
       KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: 'kafka:29092'
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: 'broker:29092'
       KAFKA_CLUSTERS_0_ZOOKEEPER: 'zookeeper:2181'
+    volumes:
+      - C:/home/data/kafka:/kafka-ui/db
     networks:
       - crawler-network
 
@@ -95,10 +98,8 @@ services:
         web.upload.dir: /opt/flink/flink-web
         env.TZ: Asia/Seoul
     volumes:
-      - C:\home\data\flink\web:/opt/flink/flink-web
-      - C:\home\data\flink\usrlib:/opt/flink/usrlib
-    networks:
-      - crawler-network
+      - C:/home/data/flink/flink-web:/opt/flink/flink-web
+      - C:/home/data/flink/usrlib:/opt/flink/usrlib
 
   taskmanager:
     container_name: taskmanager
@@ -111,9 +112,7 @@ services:
         jobmanager.rpc.address: jobmanager
         env.TZ: Asia/Seoul
     volumes:
-      - C:\home\data\flink\usrlib:/opt/flink/usrlib
-    networks:
-      - crawler-network
+      - C:/home/data/flink/usrlib:/opt/flink/usrlib
 
 #  redis:
 #    image: docker.io/bitnami/redis:6.2

@@ -34,6 +34,9 @@ dependencies {
     compileOnly 'org.apache.flink:flink-streaming-java:1.18.0'
     implementation 'org.apache.flink:flink-java:1.18.0'
     implementation 'com.ververica:flink-connector-mysql-cdc:3.0.1'
+    implementation 'com.ververica:flink-connector-mongodb-cdc:3.0.1'
+
+    implementation 'org.apache.flink:flink-connector-base:1.18.0'
     implementation 'org.apache.flink:flink-connector-mongodb:1.1.0-1.18'
     implementation 'org.apache.flink:flink-connector-jdbc:3.1.2-1.18'
 
@@ -41,7 +44,7 @@ dependencies {
     implementation 'org.apache.flink:flink-clients:1.18.0'
 
     //mongoDB
-    implementation 'org.mongodb:mongodb-driver-sync:5.1.0'
+    implementation 'org.mongodb:mongodb-driver-sync:4.11.1'
 
     //mysql
     implementation 'mysql:mysql-connector-java:8.0.33'
