@@ -1,18 +1,35 @@
 package com.jovialcode.parser.parsing;
 
-import lombok.Data;
 
 import java.io.Serializable;
 
-@Data
 public class ParsingResult implements Serializable {
     private static final long serialVersionUID = 3L;
 
-    private final String tag;
-    private final String value;
+    private String tag;
+    private String value;
+
+    public ParsingResult() {
+    }
 
     public ParsingResult(String tag, String value) {
         this.tag = tag;
+        this.value = value;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public void setValue(String value) {
         this.value = value;
     }
 }

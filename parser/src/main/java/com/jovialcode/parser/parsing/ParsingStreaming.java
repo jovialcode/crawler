@@ -35,8 +35,8 @@ public class ParsingStreaming {
             .setFetchSize(10)
             .setLimit(50)
             .setNoCursorTimeout(true)
-            .setPartitionStrategy(PartitionStrategy.SPLIT_VECTOR)
-            .setPartitionSize(MemorySize.ofMebiBytes(64))
+            .setPartitionStrategy(PartitionStrategy.SAMPLE)
+            .setPartitionSize(MemorySize.ofMebiBytes(100))
             .setSamplesPerPartition(1)
             .setDeserializationSchema(new MongoJsonDeserializationSchema())
             .build();
@@ -54,27 +54,20 @@ public class ParsingStreaming {
                     return new Tuple1<>(htmlParser.parse(document, List.of(parsingRule)));
                 }
             })
-            .flatMap(new FlatMapFunction<Tuple1<List<ParsingResult>>, ParsingResult>() {
+            .flatMap(new FlatMapFunction<Tuple1<List<ParsingResult>>, Tuple1<ParsingResult>>() {
                 @Override
-                public void flatMap(Tuple1<List<ParsingResult>> parsingResults, Collector<ParsingResult> out) throws Exception {
+                public void flatMap(Tuple1<List<ParsingResult>> parsingResults, Collector<Tuple1<ParsingResult>> out) throws Exception {
                     for (ParsingResult result : parsingResults.f0) {
-                        out.collect(result);
+                        out.collect(new Tuple1<>(result));
                     }
-                }
-            })
-            .map(new MapFunction<ParsingResult, ParsingResult>() {
-                @Override
-                public ParsingResult map(ParsingResult parsingResult) throws Exception {
-                    System.out.println(parsingResult); // 파싱 결과 출력
-                    return parsingResult;
                 }
             })
             .addSink(
                 JdbcSink.sink(
                     String.format("insert into %s (tag, value) values (?, ?)", table),
                     (statement, parseResult) -> {
-                        statement.setString(1, parseResult.getTag());
-                        statement.setString(2, parseResult.getValue());
+                        statement.setString(1, parseResult.f0.getTag());
+                        statement.setString(2, parseResult.f0.getValue());
                     },
                     JdbcExecutionOptions.builder()
                         .withBatchSize(1)
