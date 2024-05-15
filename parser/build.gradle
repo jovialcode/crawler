@@ -24,6 +24,10 @@ sourceSets {
     }
 }
 
+test {
+    jvmArgs = ["--add-opens=java.base/java.util=ALL-UNNAMED"]
+}
+
 dependencies {
     implementation project(':common')
 
@@ -32,16 +36,15 @@ dependencies {
 
     //flink
     compileOnly 'org.apache.flink:flink-streaming-java:1.18.0'
+
+    implementation 'org.apache.flink:flink-clients:1.18.0'
     implementation 'org.apache.flink:flink-java:1.18.0'
+
     implementation 'com.ververica:flink-connector-mysql-cdc:3.0.1'
     implementation 'com.ververica:flink-connector-mongodb-cdc:3.0.1'
-
     implementation 'org.apache.flink:flink-connector-base:1.18.0'
     implementation 'org.apache.flink:flink-connector-mongodb:1.1.0-1.18'
     implementation 'org.apache.flink:flink-connector-jdbc:3.1.2-1.18'
-
-    //flink (debug)
-    implementation 'org.apache.flink:flink-clients:1.18.0'
 
     //mongoDB
     implementation 'org.mongodb:mongodb-driver-sync:4.11.1'
@@ -52,4 +55,6 @@ dependencies {
     //test
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    testImplementation 'org.apache.flink:flink-test-utils:1.18.0'
 }

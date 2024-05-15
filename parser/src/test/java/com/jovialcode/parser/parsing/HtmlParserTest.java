@@ -1,13 +1,18 @@
 package com.jovialcode.parser.parsing;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.test.util.MiniClusterWithClientResource;
+import org.junit.ClassRule;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HtmlParserTest {
+
     @Test
     void testParsingRule(){
         String page = getPage();

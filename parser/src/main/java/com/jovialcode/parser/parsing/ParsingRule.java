@@ -6,7 +6,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Data
@@ -23,6 +26,8 @@ public class ParsingRule implements Serializable {
 
     public List<ParsingResult> evaluate(Document page) {
         Elements nodes = page.selectXpath(this.xPath);
+
+        if(Objects.isNull(nodes)) return new ArrayList<>();
 
         return nodes
             .stream()
