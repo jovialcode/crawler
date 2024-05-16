@@ -1,45 +1,32 @@
 package com.jovialcode.parser.parsing;
 
-import com.jovialcode.parser.common.MongoJsonDeserializationSchema;
-import org.apache.flink.api.common.RuntimeExecutionMode;
+import com.ververica.cdc.connectors.base.options.StartupOptions;
+import com.ververica.cdc.connectors.mongodb.source.MongoDBSource;
+import com.ververica.cdc.debezium.JsonDebeziumDeserializationSchema;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple1;
-import org.apache.flink.configuration.MemorySize;
 import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
 import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
 import org.apache.flink.connector.jdbc.JdbcSink;
-import org.apache.flink.connector.mongodb.source.MongoSource;
-import org.apache.flink.connector.mongodb.source.enumerator.splitter.PartitionStrategy;
-import org.apache.flink.connector.mongodb.source.reader.deserializer.MongoDeserializationSchema;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Collector;
-import org.bson.BsonDocument;
 
 import java.util.List;
-import java.util.Optional;
-
-import static org.apache.flink.connector.mongodb.common.utils.MongoConstants.DEFAULT_JSON_WRITER_SETTINGS;
 
 public class ParsingStreaming {
     public static void main(String[] args) throws Exception {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        MongoSource<String> source = MongoSource.<String>builder()
-            .setUri("mongodb://crawler:crawler123@mongodb:27017")
-            .setDatabase("crawler")
-            .setCollection("crawl_data")
-            .setProjectedFields("_id", "_class", "crawlerId", "page")
-            .setFetchSize(10)
-            .setLimit(50)
-            .setNoCursorTimeout(true)
-            .setPartitionStrategy(PartitionStrategy.SAMPLE)
-            .setPartitionSize(MemorySize.ofMebiBytes(100))
-            .setSamplesPerPartition(1)
-            .setDeserializationSchema(new MongoJsonDeserializationSchema())
+        MongoDBSource<String> source = MongoDBSource.<String>builder()
+            .hosts("mongo1:27017,mongo2:27017,mongo3:27017/?replicaSet=rs0")
+            .username("crawler")
+            .password("crawler123")
+            .databaseList("crawler") // set captured database, support regex
+            .collectionList("crawl_data")
+            .startupOptions(StartupOptions.latest())
+            .deserializer(new JsonDebeziumDeserializationSchema())
             .build();
 
         ParsingRule parsingRule = new ParsingRule("//*[@id=\"content\"]/div[5]/ul/li[1]/div[1]/div[2]/strong/span[1]/a", "name");

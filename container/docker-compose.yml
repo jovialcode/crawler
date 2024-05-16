@@ -15,19 +15,62 @@ services:
     ports:
       - "3306:3306"
 
-  mongodb:
-    container_name: mongodb
+  mongo1:
     image: mongo:5.0
+    container_name: mongo1
     ports:
-      - '27017:27017'
+      - "27017:27017"
     volumes:
       - C:/home/data/mongodb:/data/db
+      - C:/home/data/key/mongodb.key:/etc/mongodb.key
       - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=admin!23
       - MONGO_INITDB_DATABASE=crawler
       - TZ=Asia/Seoul
+    command: mongod --replSet rs0 --keyFile /etc/mongodb.key --bind_ip_all
+
+  mongo2:
+    image: mongo:5.0
+    container_name: mongo2
+    ports:
+      - "27018:27017"
+    volumes:
+      - C:/home/data/mongodb2:/data/db
+      - C:/home/data/key/mongodb.key:/etc/mongodb.key
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin!23
+      - MONGO_INITDB_DATABASE=crawler
+      - TZ=Asia/Seoul
+    command: mongod --replSet rs0 --keyFile /etc/mongodb.key --bind_ip_all
+
+  mongo3:
+    image: mongo:5.0
+    container_name: mongo3
+    ports:
+      - "27019:27017"
+    volumes:
+      - C:/home/data/mongodb3:/data/db
+      - C:/home/data/key/mongodb.key:/etc/mongodb.key
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin!23
+      - MONGO_INITDB_DATABASE=crawler
+      - TZ=Asia/Seoul
+    command: mongod --replSet rs0 --keyFile /etc/mongodb.key --bind_ip_all
+
+  mongosetup:
+    image: mongo:5.0
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    volumes:
+      - ./mongo_setup.sh:/scripts/mongo_setup.sh
+    restart: "no"
+    entrypoint: [ "bash", "/scripts/mongo_setup.sh" ]
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.2
@@ -113,6 +156,14 @@ services:
         env.TZ: Asia/Seoul
     volumes:
       - C:/home/data/flink/usrlib:/opt/flink/usrlib
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "3015:80"
+    volumes:
+      - C:/home/data/key:/key
 
 #  redis:
 #    image: docker.io/bitnami/redis:6.2
