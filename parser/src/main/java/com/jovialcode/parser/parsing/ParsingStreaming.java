@@ -14,6 +14,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Collector;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ParsingStreaming {
     public static void main(String[] args) throws Exception {
@@ -21,10 +22,11 @@ public class ParsingStreaming {
 
         MongoDBSource<String> source = MongoDBSource.<String>builder()
             .hosts("mongo1:27017,mongo2:27017,mongo3:27017/?replicaSet=rs0")
+            .scheme("mongodb")
             .username("crawler")
             .password("crawler123")
             .databaseList("crawler") // set captured database, support regex
-            .collectionList("crawl_data")
+            .collectionList("crawler.crawl_data")
             .startupOptions(StartupOptions.latest())
             .deserializer(new JsonDebeziumDeserializationSchema())
             .build();
@@ -45,8 +47,10 @@ public class ParsingStreaming {
             .flatMap(new FlatMapFunction<Tuple1<List<ParsingResult>>, Tuple1<ParsingResult>>() {
                 @Override
                 public void flatMap(Tuple1<List<ParsingResult>> parsingResults, Collector<Tuple1<ParsingResult>> out) throws Exception {
-                    for (ParsingResult result : parsingResults.f0) {
-                        out.collect(new Tuple1<>(result));
+                    if(!Objects.isNull(parsingResults.f0)){
+                        for (ParsingResult result : parsingResults.f0) {
+                            out.collect(new Tuple1<>(result));
+                        }
                     }
                 }
             })

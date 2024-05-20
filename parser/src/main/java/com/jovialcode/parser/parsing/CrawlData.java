@@ -1,7 +1,9 @@
 package com.jovialcode.parser.parsing;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -10,10 +12,20 @@ public class CrawlData implements Serializable {
     private String url;
     @JsonProperty("_class")
     private String className;
-
+    @JsonProperty("page")
     private String page;
-    @JsonIgnore
-    private String crawlerId;
+    @JsonProperty("crawlerId")
+    private Integer crawlerId;
+
+    public CrawlData() {
+    }
+
+    public CrawlData(String url, String className, String page, Integer crawlerId) {
+        this.url = url;
+        this.className = className;
+        this.page = page;
+        this.crawlerId = crawlerId;
+    }
 
     public String getUrl() {
         return url;
@@ -39,11 +51,11 @@ public class CrawlData implements Serializable {
         this.page = page;
     }
 
-    public String getCrawlerId() {
+    public Integer getCrawlerId() {
         return crawlerId;
     }
 
-    public void setCrawlerId(String crawlerId) {
+    public void setCrawlerId(Integer crawlerId) {
         this.crawlerId = crawlerId;
     }
 }

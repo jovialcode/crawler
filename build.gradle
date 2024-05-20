@@ -49,4 +49,8 @@ subprojects {
         //For Functional Coding
         implementation 'io.vavr:vavr:0.10.4'
     }
+
+    test {
+        jvmArgs '--add-opens', 'java.base/java.util=ALL-UNNAMED'
+    }
 }

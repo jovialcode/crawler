@@ -16,7 +16,7 @@ class SeedLinkTest {
 
     @Test
     void send() throws URISyntaxException {
-        URI uri = new URI("https://gh.cauhs.or.kr/home/medical/deptProf80.do");
+        URI uri = new URI("https://www.snuh.org/reservation/meddept/IMC/mainDoctor.do");
         CrawlItem crawlItem = new CrawlItem(uri);
         seedLink.send("healty", crawlItem);
     }
