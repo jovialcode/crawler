@@ -34,3 +34,13 @@ CREATE TABLE IF NOT EXISTS seed_link (
     createDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleteYn TINYINT DEFAULT 0
 );
+
+DROP TABLE IF EXISTS parsing_rule;
+CREATE TABLE IF NOT EXISTS parsing_rule (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    crawler_id INT,
+    parsing_rules varchar(255),
+    createDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleteYn TINYINT DEFAULT 0,
+    FOREIGN KEY (crawler_id) REFERENCES crawler(id)
+);

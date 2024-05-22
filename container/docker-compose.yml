@@ -139,6 +139,8 @@ services:
       FLINK_PROPERTIES: |-
         jobmanager.rpc.address: jobmanager
         web.upload.dir: /opt/flink/flink-web
+        taskmanager.numberOfTaskSlots: 10
+        env.java.opts: "-Duser.timezone=Asia/Seoul"
         env.TZ: Asia/Seoul
     volumes:
       - C:/home/data/flink/flink-web:/opt/flink/flink-web
@@ -153,6 +155,8 @@ services:
     environment:
       FLINK_PROPERTIES: |-
         jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 10
+        env.java.opts: "-Duser.timezone=Asia/Seoul"
         env.TZ: Asia/Seoul
     volumes:
       - C:/home/data/flink/usrlib:/opt/flink/usrlib

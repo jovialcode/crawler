@@ -2,25 +2,35 @@ package com.jovialcode.parser.parsing;
 
 import com.ververica.cdc.connectors.base.options.StartupOptions;
 import com.ververica.cdc.connectors.mongodb.source.MongoDBSource;
+import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.debezium.JsonDebeziumDeserializationSchema;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.java.tuple.Tuple1;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
 import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
 import org.apache.flink.connector.jdbc.JdbcSink;
+import org.apache.flink.streaming.api.datastream.BroadcastStream;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Collector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
 
 public class ParsingStreaming {
+    private static final Logger logger = LoggerFactory.getLogger(ParsingStreaming.class);
+
     public static void main(String[] args) throws Exception {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        MongoDBSource<String> source = MongoDBSource.<String>builder()
+        MongoDBSource<String> documentSource = MongoDBSource.<String>builder()
             .hosts("mongo1:27017,mongo2:27017,mongo3:27017/?replicaSet=rs0")
             .scheme("mongodb")
             .username("crawler")
@@ -31,17 +41,39 @@ public class ParsingStreaming {
             .deserializer(new JsonDebeziumDeserializationSchema())
             .build();
 
-        ParsingRule parsingRule = new ParsingRule("//*[@id=\"content\"]/div[5]/ul/li[1]/div[1]/div[2]/strong/span[1]/a", "name");
-        Parsing htmlParser = new HtmlParser();
-        String table = "temp";
+        MySqlSource<String> parsingRuleSource = MySqlSource.<String>builder()
+            .hostname("mysql")
+            .port(3306)
+            .databaseList("crawler")
+            .username("root")
+            .password("admin!23")
+            .tableList("crawler.parsing_rule")
+            .serverTimeZone("Asia/Seoul")
+            .deserializer(new JsonDebeziumDeserializationSchema())
+            .build();
+
+
+        MapStateDescriptor<String, ParsingInfo> broadcastStateDescriptor =
+            new MapStateDescriptor<>("broadcast-state", String.class, ParsingInfo.class);
+
+        BroadcastStream<String> parsingRuleStream = env.fromSource(
+            parsingRuleSource,
+            WatermarkStrategy.forMonotonousTimestamps(),
+            "parsingRule Source")
+            .broadcast(broadcastStateDescriptor);
+
+        HtmlParser htmlParser = new HtmlParser();
 
         // MongoDBSource로부터 데이터를 읽어오는 DataStream 생성
-        env.fromSource(source, WatermarkStrategy.forMonotonousTimestamps(), "crawl_data")
-            .setParallelism(1)
-            .map(new MapFunction<String, Tuple1<List<ParsingResult>>>() {
+        DataStreamSource<String> crawlDataStream = env.fromSource(documentSource, WatermarkStrategy.forMonotonousTimestamps(), "crawl_data");
+        crawlDataStream
+            .setParallelism(2)
+            .connect(parsingRuleStream)
+            .process(new ParsingProcess())
+            .map(new MapFunction<ParsingItem, Tuple1<List<ParsingResult>>>() {
                 @Override
-                public Tuple1<List<ParsingResult>> map(String document) {
-                    return new Tuple1<>(htmlParser.parse(document, List.of(parsingRule)));
+                public Tuple1<List<ParsingResult>> map(ParsingItem parsingItem) {
+                    return new Tuple1<>(htmlParser.parse(parsingItem.getCrawlData(), parsingItem.getParsingInfo()));
                 }
             })
             .flatMap(new FlatMapFunction<Tuple1<List<ParsingResult>>, Tuple1<ParsingResult>>() {
@@ -56,7 +88,7 @@ public class ParsingStreaming {
             })
             .addSink(
                 JdbcSink.sink(
-                    String.format("insert into %s (tag, value) values (?, ?)", table),
+                    String.format("insert into %s (tag, value) values (?, ?)", "temp"),
                     (statement, parseResult) -> {
                         statement.setString(1, parseResult.f0.getTag());
                         statement.setString(2, parseResult.f0.getValue());
@@ -74,8 +106,7 @@ public class ParsingStreaming {
                         .build()
                 )
             );
-
         // Job 실행
-        env.execute("final mongoDB -> Mysql");
+        env.execute("Parsing Streaming");
     }
 }

@@ -15,12 +15,14 @@ class HtmlParserTest {
 
     @Test
     void testParsingRule(){
+        CrawlData crawlData = new CrawlData();
         String page = getPage();
         ParsingRule parsingRule = new ParsingRule("//*[@id=\"content\"]/div[5]/ul/li[1]/div[1]/div[2]/strong/span[1]/a", "name");
 
         Parsing htmlParser = new HtmlParser();
+        ParsingInfo parsingInfo = new ParsingInfo();
 
-        assertEquals(new ParsingResult("name", "최은화"), htmlParser.parse(page, List.of(parsingRule)));
+        assertEquals(new ParsingResult("name", "최은화"), htmlParser.parse(crawlData, parsingInfo));
     }
 
     private String getPage(){

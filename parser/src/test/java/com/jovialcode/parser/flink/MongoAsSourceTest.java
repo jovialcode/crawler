@@ -33,6 +33,7 @@ public class MongoAsSourceTest {
                 .setNumberSlotsPerTaskManager(2)
                 .setNumberTaskManagers(1)
                 .build());
+
     @Test
     public void testMongoDBSource() throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -58,21 +59,6 @@ public class MongoAsSourceTest {
         //
         CollectSink.values.clear();
         env.fromSource(source, WatermarkStrategy.forMonotonousTimestamps(), "crawl_data")
-            .setParallelism(1)
-            .map(new MapFunction<String, Tuple1<List<ParsingResult>>>() {
-                @Override
-                public Tuple1<List<ParsingResult>> map(String document) {
-                    return new Tuple1(htmlParser.parse(document, List.of(parsingRule)));
-                }
-            })
-            .flatMap(new FlatMapFunction<Tuple1<List<ParsingResult>>, Tuple1<ParsingResult>>() {
-                @Override
-                public void flatMap(Tuple1<List<ParsingResult>> parsingResults, Collector<Tuple1<ParsingResult>> out) throws Exception {
-                    for (ParsingResult result : parsingResults.f0) {
-                        out.collect(new Tuple1<>(result));
-                    }
-                }
-            })
             .addSink(new CollectSink());
 
         // execute
@@ -80,14 +66,13 @@ public class MongoAsSourceTest {
         Assertions.assertFalse(CollectSink.values.isEmpty());
     }
 
-    private static class CollectSink implements SinkFunction<Tuple1<ParsingResult>> {
+    private static class CollectSink implements SinkFunction<String> {
 
-        public static final List<Tuple1<ParsingResult>> values = Collections.synchronizedList(new ArrayList<>());
+        public static final List<String> values = Collections.synchronizedList(new ArrayList<>());
 
         @Override
-        public void invoke(Tuple1<ParsingResult> value, SinkFunction.Context context) {
+        public void invoke(String value, SinkFunction.Context context) {
             values.add(value);
         }
     }
-
 }

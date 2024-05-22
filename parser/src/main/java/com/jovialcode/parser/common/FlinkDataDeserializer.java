@@ -7,14 +7,14 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 import java.io.IOException;
 
-public class FlinkDocumentDeserializer<T> extends StdDeserializer<T> implements ContextualDeserializer {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+public class FlinkDataDeserializer<T> extends StdDeserializer<T> implements ContextualDeserializer {
+    private static final ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-    public FlinkDocumentDeserializer() {
+    public FlinkDataDeserializer() {
         this(null);
     }
 
-    public FlinkDocumentDeserializer(Class<?> vc) {
+    public FlinkDataDeserializer(Class<?> vc) {
         super(vc);
     }
 
@@ -26,6 +26,6 @@ public class FlinkDocumentDeserializer<T> extends StdDeserializer<T> implements 
 
     @Override
     public JsonDeserializer<T> createContextual(DeserializationContext ctxt, BeanProperty property) {
-        return new FlinkDocumentDeserializer<>(property.getType().getRawClass());
+        return new FlinkDataDeserializer<>(property.getType().getRawClass());
     }
 }

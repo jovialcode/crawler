@@ -5,31 +5,30 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.io.Serializable;
-import java.util.Map;
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FlinkData<T> implements Serializable {
+public class FlinkDocument<T> implements Serializable {
     @JsonProperty("_id")
     private Object id;
     @JsonProperty("operationType")
     private String operationType;
 
     @JsonProperty("fullDocument")
-    @JsonDeserialize(using = FlinkDocumentDeserializer.class)
+    @JsonDeserialize(using = FlinkDataDeserializer.class)
     private T fullDocument;
 
     @JsonProperty("fullDocumentBeforeChange")
-    @JsonDeserialize(using = FlinkDocumentDeserializer.class)
+    @JsonDeserialize(using = FlinkDataDeserializer.class)
     private T fullDocumentBeforeChange;
 
     @JsonProperty("ts_ms")
     private Long timestamp;
 
-    public FlinkData() {
+    public FlinkDocument() {
     }
 
-    public FlinkData(Object id, String operationType, T fullDocument, T fullDocumentBeforeChange, Long timestamp) {
+    public FlinkDocument(Object id, String operationType, T fullDocument, T fullDocumentBeforeChange, Long timestamp) {
         this.id = id;
         this.operationType = operationType;
         this.fullDocument = fullDocument;

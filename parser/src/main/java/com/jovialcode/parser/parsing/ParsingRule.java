@@ -1,31 +1,50 @@
 package com.jovialcode.parser.parsing;
 
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Data
 public class ParsingRule implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final String xPath;
-    private final String tag;
+    @JsonProperty("pattern")
+    private String pattern;
+    @JsonProperty("tag")
+    private String tag;
 
-    public ParsingRule(String xPath, String tag){
-        this.xPath = xPath;
+    public ParsingRule() {
+    }
+
+    public ParsingRule(String pattern, String tag) {
+        this.pattern = pattern;
+        this.tag = tag;
+    }
+
+    public String getPattern() {
+        return pattern;
+    }
+
+    public void setPattern(String pattern) {
+        this.pattern = pattern;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
         this.tag = tag;
     }
 
     public List<ParsingResult> evaluate(Document page) {
-        Elements nodes = page.selectXpath(this.xPath);
+        Elements nodes = page.selectXpath(this.pattern);
 
         if(Objects.isNull(nodes)) return new ArrayList<>();
 

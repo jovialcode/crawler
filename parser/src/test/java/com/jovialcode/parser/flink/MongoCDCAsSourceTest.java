@@ -50,24 +50,18 @@ public class MongoCDCAsSourceTest {
 
         CollectSink.values.clear();
         env.fromSource(source, WatermarkStrategy.noWatermarks(), "crawl_data")
-            .map(new MapFunction<String, Tuple1<List<ParsingResult>>>() {
-                @Override
-                public Tuple1<List<ParsingResult>> map(String document) {
-                    return new Tuple1<>(htmlParser.parse(document, List.of(parsingRule)));
-                }
-            })
             .addSink(new CollectSink());
 
         env.execute();
         Assertions.assertFalse(CollectSink.values.isEmpty());
     }
 
-    private static class CollectSink implements SinkFunction<Tuple1<List<ParsingResult>>> {
+    private static class CollectSink implements SinkFunction<String> {
 
-        public static final List<Tuple1<List<ParsingResult>>> values = Collections.synchronizedList(new ArrayList<>());
+        public static final List<String> values = Collections.synchronizedList(new ArrayList<>());
 
         @Override
-        public void invoke(Tuple1<List<ParsingResult>> value, Context context) {
+        public void invoke(String value, Context context) {
             values.add(value);
         }
     }
