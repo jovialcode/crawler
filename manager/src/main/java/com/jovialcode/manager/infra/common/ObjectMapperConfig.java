@@ -1,4 +1,4 @@
-package com.jovialcode.manager.common;
+package com.jovialcode.manager.infra.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;

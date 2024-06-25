@@ -1,6 +1,6 @@
 package com.jovialcode.manager.web.crawler;
 
-import com.jovialcode.manager.crawler.CrawlerStatus;
+import com.jovialcode.manager.domains.crawler.CrawlerStatus;
 import lombok.Data;
 
 import java.sql.Timestamp;

@@ -39,6 +39,18 @@ DROP TABLE IF EXISTS parsing_rule;
 CREATE TABLE IF NOT EXISTS parsing_rule (
     id INT AUTO_INCREMENT PRIMARY KEY,
     crawler_id INT,
+    url_pattern varchar(100)
+    table_name varchar(100),
+    parsing_rules varchar(255),
+    createDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleteYn TINYINT DEFAULT 0,
+    FOREIGN KEY (crawler_id) REFERENCES crawler(id)
+);
+
+DROP TABLE IF EXISTS outlink_parsing_rule;
+CREATE TABLE IF NOT EXISTS outlink_parsing_rule (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    crawler_id INT,
     parsing_rules varchar(255),
     createDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleteYn TINYINT DEFAULT 0,

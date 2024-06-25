@@ -43,8 +43,7 @@ public class ParsingProcess extends BroadcastProcessFunction<String, String, Par
     public void processBroadcastElement(String row,
                                         BroadcastProcessFunction<String, String, ParsingItem>.Context ctx,
                                         Collector<ParsingItem> out) throws Exception {
-        FlinkRow<ParsingInfo> flinkRow = objectMapper.readValue(row, new TypeReference<>() {
-        });
+        FlinkRow<ParsingInfo> flinkRow = objectMapper.readValue(row, new TypeReference<>() {});
         ParsingInfo parsingInfo = flinkRow.getAfter();
         logger.info("ParsingProcess: parsingInfo: {}", parsingInfo);
         BroadcastState<String, ParsingInfo> broadcastState = ctx.getBroadcastState(broadcastStateDescriptor);

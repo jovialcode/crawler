@@ -1,4 +1,4 @@
-package com.jovialcode.manager.infra;
+package com.jovialcode.manager.infra.configuration;
 
 import com.jovialcode.common.crawler.CrawlItem;
 import org.apache.kafka.common.serialization.StringSerializer;

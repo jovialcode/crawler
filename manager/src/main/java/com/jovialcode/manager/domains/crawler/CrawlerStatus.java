@@ -1,4 +1,4 @@
-package com.jovialcode.manager.crawler;
+package com.jovialcode.manager.domains.crawler;
 
 public enum CrawlerStatus {
     INIT,

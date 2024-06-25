@@ -1,4 +1,4 @@
-package com.jovialcode.manager.crawler;
+package com.jovialcode.manager.domains.crawler;
 
 import com.jovialcode.manager.web.crawler.CrawlerMapper;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +12,7 @@ public class CrawlerService {
     private final CrawlerRepository crawlerRepository;
     private final CrawlerMapper crawlerMapper;
 
-    public Flux<Crawler> crawlers(){
+    public Flux<Crawler> crawlers() {
         return crawlerRepository.findAll();
     }
 }

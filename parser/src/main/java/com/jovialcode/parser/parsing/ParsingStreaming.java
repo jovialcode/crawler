@@ -1,5 +1,7 @@
 package com.jovialcode.parser.parsing;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.jovialcode.parser.common.FlinkRow;
 import com.ververica.cdc.connectors.base.options.StartupOptions;
 import com.ververica.cdc.connectors.mongodb.source.MongoDBSource;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
@@ -54,12 +56,19 @@ public class ParsingStreaming {
 
 
         MapStateDescriptor<String, ParsingInfo> broadcastStateDescriptor =
-            new MapStateDescriptor<>("broadcast-state", String.class, ParsingInfo.class);
+            new MapStateDescriptor<>("parsingRule", String.class, ParsingInfo.class);
 
         BroadcastStream<String> parsingRuleStream = env.fromSource(
             parsingRuleSource,
             WatermarkStrategy.forMonotonousTimestamps(),
             "parsingRule Source")
+            .map(new MapFunction<String, ParsingInfo>() {
+                @Override
+                public ParsingInfo map(String row){
+                    FlinkRow<ParsingInfo> flinkRow = objectMapper.readValue(row, new TypeReference<>() {});
+                    return flinkRow.getAfter();
+                }
+            })
             .broadcast(broadcastStateDescriptor);
 
         HtmlParser htmlParser = new HtmlParser();
@@ -67,7 +76,6 @@ public class ParsingStreaming {
         // MongoDBSource로부터 데이터를 읽어오는 DataStream 생성
         DataStreamSource<String> crawlDataStream = env.fromSource(documentSource, WatermarkStrategy.forMonotonousTimestamps(), "crawl_data");
         crawlDataStream
-            .setParallelism(2)
             .connect(parsingRuleStream)
             .process(new ParsingProcess())
             .map(new MapFunction<ParsingItem, Tuple1<List<ParsingResult>>>() {

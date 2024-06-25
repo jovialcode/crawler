@@ -1,11 +1,8 @@
 package com.jovialcode.manager.web.crawler;
 
-import com.jovialcode.manager.crawler.Crawler;
-import com.jovialcode.manager.crawler.CrawlerService;
+import com.jovialcode.manager.domains.crawler.CrawlerService;
 import com.jovialcode.manager.web.ResponseMessage;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import net.sf.jsqlparser.schema.Server;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;

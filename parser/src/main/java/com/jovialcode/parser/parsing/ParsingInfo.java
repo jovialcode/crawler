@@ -4,6 +4,10 @@ package com.jovialcode.parser.parsing;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jsoup.nodes.Document;
 
 import java.io.Serializable;
@@ -18,6 +22,8 @@ public class ParsingInfo implements Serializable {
     private Integer id;
     @JsonProperty("crawler_id")
     private Integer crawlerId;
+    @JsonProperty("url_pattern")
+    private String urlPattern;
     @JsonProperty("parsing_rules")
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     private List<ParsingRule> parsingRules;

@@ -1,4 +1,4 @@
-package com.jovialcode.manager.crawler;
+package com.jovialcode.manager.domains.crawler;
 
 
 import lombok.Getter;
@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.sql.Timestamp;
@@ -16,6 +17,7 @@ import java.sql.Timestamp;
 public class Crawler {
     @Id
     private Long id;
+    @Column("crawler_name")
     private String name;
     private String description;
 
